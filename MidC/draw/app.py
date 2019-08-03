@@ -25,8 +25,8 @@ treeColor = [[0,50,0],[0,120,0]]
 treeScale = 4
 while True:
     screen.fill((0,0,225))
-    RT_draw(screen,aData,((0,0,0),(240,240,240)),100,200,8,4)
-    RT_draw(screen,brickData,brickColor,300,200,7,4)
-    RT_draw(screen,treeData,treeColor,500,200,8,4)
+    RT_draw(screen,aData,((0,0,0),(240,240,240)),100,200,8,10)
+    RT_draw(screen,brickData,brickColor,300,200,7,10)
+    RT_draw(screen,treeData,treeColor,500,200,8,10)
     pygame.display.update()
     pygame.event.get()
