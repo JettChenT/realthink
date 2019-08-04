@@ -44,7 +44,7 @@ class CLS_grid(object):
             f.write(byteStr)
         return
     def clear(self):
-        self.data = [[0 for x in range(n)] for y in range(n)]
+        self.data = [[0 for x in range(self.n)] for y in range(self.n)]
         return
 # init
 pygame.init()
