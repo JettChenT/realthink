@@ -1,6 +1,25 @@
 # the image editor
 import pygame,sys
 SCREEN_WIDTH,SCREEN_HEIGHT = 1000,700
+class CLS_step(object):
+    def __init__(self,dx,dy):
+        self.dx, self.dy = dx,dy
+        return
+
+class CLS_stack(object):
+    def __init__(self):
+        self.nList = []
+        return
+    def PUSH(self,step):
+        self.nList.append(step)
+        return
+    def POP(self):
+        if len(self.nList) == 0:
+            return None
+        step= self.nList[-1]
+        self.nList.pop()
+        return step
+
 class CLS_grid(object):
     def __init__(self,x0,y0,n,scale,d,cList=[(0,0,0),(255,255,255)]):
         self.x0,self.y0 = x0,y0
@@ -53,6 +72,8 @@ font = pygame.font.Font(None, 32)
 cList = [(0,0,0),(0,255,255)]
 grid = CLS_grid(20,120,32,15,7,cList)
 grid.draw(screen)
+stack = CLS_stack()
+clock = pygame.time.Clock()
 # main program
 while True:
     screen.fill((0,0,0))
@@ -62,6 +83,8 @@ while True:
         if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
             mx,my = event.pos[0],event.pos[1]
             grid.mousedown(mx,my)
+            step = CLS_step(mx,my)
+            stack.PUSH(step)
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_s:
                 print('saved😊😊')
@@ -69,5 +92,15 @@ while True:
             elif event.key == pygame.K_c:
                 print("cleared")
                 grid.clear()
+            elif event.key == pygame.K_z:
+                last_step = stack.POP()
+                if last_step != None:
+                    grid.mousedown(last_step.dx,last_step.dy)
+            elif event.key == pygame.K_p:
+                grid.clear()
+                for step in stack.nList:
+                    grid.mousedown(step.dx,step.dy)
+                    pygame.display.update()
+                    clock.tick(20)
         elif event.type == pygame.QUIT:
             pygame.quit()
