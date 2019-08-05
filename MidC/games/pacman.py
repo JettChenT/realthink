@@ -1,0 +1,25 @@
+from clsBlock import *
+import pygame
+pygame.init()
+screen = pygame.display.set_mode((1024,768))
+clock = pygame.time.Clock()
+fontscore = pygame.font.Font(None, 42)
+picPac = RT_block_init('pacman.txt',[(0,0,0),[240,240,0]],8,4,True)
+pacman = CLS_pacman(16,0,0,0)
+pic0 = RT_block_init('brick.txt',[(255,237,80),(64,64,64)],8,4,True)
+pic1 = RT_block_init('tree.txt',[(0,50,0),(0,160,0)],8,4,False)
+dot = RT_block_init('dot.txt',[(0,0,0),(225,225,225)],16,2,True)
+pacman = CLS_pacman(16,0,0,0)
+maze = CLS_maze('maze01.txt',pic0,pic1,20,100,16,32)
+while True:
+    if pacman.moving:
+        maze.draw(screen)
+        pacman.rhmove(maze.data)
+        pacman.check(maze.end,screen,maze,dot)
+        pacman.draw(screen,maze,picPac)
+        screen.blit(pic0,(100,20))
+        screen.blit(pic1,(150,20))
+        screen.blit(picPac,(200,20))
+        pygame.display.update()
+        clock.tick(5)
+        pygame.event.get()

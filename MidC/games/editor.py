@@ -1,6 +1,31 @@
 # the image editor
 import pygame,sys
 SCREEN_WIDTH,SCREEN_HEIGHT = 1000,700
+def RT_draw(screen,data,clrList,x0,y0,w,scale):
+    for dy in range(len(data)):
+        line = data[dy]
+        for dx in range(w):
+            clr  = clrList[line&1]
+            tx,ty = x0+(w-dx-1)*scale,y0+dy*scale
+            if scale > 1:
+                pygame.draw.rect(screen,clr,(tx,ty,scale,scale),0)
+            else:
+                screen.set_at((x,y),clr)
+            line = line >>1
+    return
+def RT_block_read(fn):
+    with open (fn,'r') as f:
+        txtLine = f.readlines()[0]
+        dataList = txtLine.split()
+        block = [int(dataList[p],16) for p in range(len(dataList))]
+    return block
+def RT_block_init(fn,cList,dm,scale):
+    pic = pygame.Surface.Surface(dm*scale, dm*scale)
+    blockList = RT_block_read(fn)
+    if blockList == None:
+        return None
+    RT_draw(pic,blockList,cList,0,0,dm,scale)
+    return pic
 class CLS_step(object):
     def __init__(self,dx,dy):
         self.dx, self.dy = dx,dy
@@ -70,7 +95,7 @@ pygame.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT))
 font = pygame.font.Font(None, 32)
 cList = [(0,0,0),(0,255,255)]
-grid = CLS_grid(20,120,32,15,7,cList)
+grid = CLS_grid(20,120,16,20,5,cList)
 grid.draw(screen)
 stack = CLS_stack()
 clock = pygame.time.Clock()
@@ -100,7 +125,7 @@ while True:
                 grid.clear()
                 for step in stack.nList:
                     grid.mousedown(step.dx,step.dy)
+                    clock.tick(10)
                     pygame.display.update()
-                    clock.tick(20)
         elif event.type == pygame.QUIT:
             pygame.quit()
