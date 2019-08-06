@@ -1,4 +1,5 @@
 import pygame
+import random
 
 
 def RT_draw(screen, data, clrList, x0, y0, w, scale):
@@ -115,7 +116,7 @@ class CLS_maze(object):
         # self.cList = cList
         self.img = pygame.Surface((n*scale, n*scale))
         self.read(fn)
-        self.end = (15, 12)
+        self.end = (15, 15)
 
         for y in range(n):
             for x in range(n):
@@ -155,7 +156,9 @@ class CLS_pacman(object):
     def __init__(self, n, x, y, flag):
         self.x, self.y = x, y
         self.n, self.flag = n, flag
-        self.moveList = []
+        self.moveList = [(0, 0)]
+        self.moveList2 = [(0, 0)]
+        self.mem = []
         self.moving = 1
         return
 
@@ -173,22 +176,15 @@ class CLS_pacman(object):
     def check(self, m, scr, maze, dot):
         x = m[0]
         y = m[1]
-        stt = 1
-        for i in range(len(self.moveList)):
-            if self.moveList[i] == (self.x, self.y):
-                del self.moveList[i+1:]
-                stt = 0
-                break
-        if stt == 1:
-            self.moveList.append((self.x, self.y))
         if self.x == x and self.y == y:
             self.finish(scr, maze, dot)
 
     def finish(self, scr, maze, dot):
-        for move in self.moveList:
+        for move in self.moveList2:
             x0, y0, d = maze.x0, maze.y0, maze.scale
             scr.blit(dot, (x0+move[0]*d, y0+move[1]*d))
         self.moving = 0
+        return
 
     def rhmove(self, grid):
         """right handed move"""
@@ -202,6 +198,63 @@ class CLS_pacman(object):
             self.move(grid)
         else:
             self.flag = (self.flag+1) % 4
+
+    def memmove(self, grid):
+        self.moveList.append((self.x, self.y))
+        self.moveList2.append((self.x, self.y))
+        waysList = []
+        for f in range(4):
+            if self.test(grid, f):
+                if (self.x+SPEED_X[f], self.y+SPEED_Y[f]) not in self.moveList:
+                    waysList.append(f)
+        if len(waysList) == 1:
+            self.flag = waysList[0]
+            self.move(grid)
+            return
+        elif len(waysList) > 1:
+            for f in waysList:
+                self.mem.append((self.x, self.y, f))
+            self.x, self.y, self.flag = self.mem[-1]
+        elif len(waysList) == 0:
+            self.x, self.y, self.flag = self.mem[-1]
+            for i in range(len(self.moveList2)):
+                if self.moveList2[i][0] == self.x and self.moveList2[i][1] == self.y:
+                    # print(self.moveList2)
+                    # print('delete!')
+                    del self.moveList2[i+1:]
+                    break
+        self.move(grid)
+        self.mem.pop()
+
+    def memmove2(self, grid):
+        self.moveList.append((self.x, self.y))
+        self.moveList2.append((self.x, self.y))
+        waysList = []
+        for f in range(4):
+            if self.test(grid, f):
+                if (self.x+SPEED_X[f], self.y+SPEED_Y[f]) not in self.moveList:
+                    waysList.append(f)
+        if len(waysList) == 1:
+            self.flag = waysList[0]
+            self.move(grid)
+            return
+        elif len(waysList) > 1:
+            for f in waysList:
+                self.mem.append((self.x, self.y, f))
+            self.x, self.y, self.flag = self.mem[0]
+        elif len(waysList) == 0:
+            self.x, self.y, self.flag = self.mem[0]
+            for i in range(len(self.moveList2)):
+                if self.moveList2[i][0] == self.x and self.moveList2[i][1] == self.y:
+                    del self.moveList2[i+1:]
+                    break
+        self.move(grid)
+        self.mem.pop(0)
+
+    def guimove(self, grid):
+        self.flag = (self.flag+random.randint(1, 3)) % 4
+        if self.test(grid, self.flag):
+            self.move(grid)
 
     def draw(self, scr, maze, pacpic):
         x0, y0, d = maze.x0, maze.y0, maze.scale
