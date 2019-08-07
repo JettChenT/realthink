@@ -200,6 +200,7 @@ class CLS_pacman(object):
             self.flag = (self.flag+1) % 4
 
     def memmove(self, grid):
+        """This is the search move, which is much more effectivec than the right handed move."""
         self.moveList.append((self.x, self.y))
         self.moveList2.append((self.x, self.y))
         waysList = []
@@ -211,6 +212,10 @@ class CLS_pacman(object):
             self.flag = waysList[0]
             self.move(grid)
             return
+        elif len(waysList) == 4:
+            self.flag = 0 
+            self.move(grid)
+            return
         elif len(waysList) > 1:
             for f in waysList:
                 self.mem.append((self.x, self.y, f))
@@ -219,8 +224,6 @@ class CLS_pacman(object):
             self.x, self.y, self.flag = self.mem[-1]
             for i in range(len(self.moveList2)):
                 if self.moveList2[i][0] == self.x and self.moveList2[i][1] == self.y:
-                    # print(self.moveList2)
-                    # print('delete!')
                     del self.moveList2[i+1:]
                     break
         self.move(grid)
@@ -250,7 +253,10 @@ class CLS_pacman(object):
                     break
         self.move(grid)
         self.mem.pop(0)
-
+    
+    def run(self,i):
+        self.x,self.y,f = self.moveList2[i]
+    
     def guimove(self, grid):
         self.flag = (self.flag+random.randint(1, 3)) % 4
         if self.test(grid, self.flag):
