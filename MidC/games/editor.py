@@ -95,7 +95,7 @@ pygame.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT))
 font = pygame.font.Font(None, 32)
 cList = [(0,0,0),(0,255,255)]
-grid = CLS_grid(20,120,32,15,7,cList)
+grid = CLS_grid(20,120,16,20,5,cList)
 grid.draw(screen)
 stack = CLS_stack()
 clock = pygame.time.Clock()

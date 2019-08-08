@@ -1,13 +1,13 @@
 import pygame
 import random
+import pprint
 
-
-def RT_draw(screen, data, clrList, x0, y0, w, scale):
+def RT_draw(screen, w,data, clrList, scale):
     for dy in range(len(data)):
         line = data[dy]
         for dx in range(w):
             clr = clrList[line & 1]
-            x, y = x0+(w-dx-1)*scale, y0+dy*scale
+            x, y = 0+(w-dx-1)*scale, 0+dy*scale
             if scale > 1:
                 pygame.draw.rect(screen, clr, (x, y, scale, scale), 0)
             else:
@@ -27,14 +27,14 @@ def RT_block_read(fn):
     return block
 
 
-def RT_block_init(fn, cList, dm, scale, tm):
-    pic = pygame.Surface((dm*scale, dm*scale))
+def RT_block_init(fn, cList, dw, scale, tm=False):
+    pic = pygame.Surface((dw*scale, dw*scale))
     blockList = RT_block_read(fn)
-    if blockList == None:
-        return None
+    if blockList != None:
+        RT_draw(pic,dw,blockList,cList,scale)
     if tm == True:
         pic.set_colorkey(cList[0])
-    RT_draw(pic, blockList, cList, 0, 0, dm, scale)
+    # RT_draw(pic, blockList, cList, 0, 0, dm, scale)
     return pic
 
 
@@ -43,7 +43,14 @@ class CLS_step(object):
         self.dx, self.dy = dx, dy
         return
 
-
+def RT_drawpath(scr,clr,maze,x,y):
+    x0, y0, d = maze.x0, maze.y0, maze.scale
+    pos = maze.data[ y ][ x ]         # 自己所在二维列表中保存了父格子下标
+    xFth = x0 + pos[0] * d + d // 2   # 根据父格子下标得到父格子中央的屏幕坐标
+    yFth = y0 + pos[1] * d + d // 2
+    xScr = x0 + x * d + d // 2        # 根据自己的下标得到自己格子中央的屏幕坐标
+    yScr = y0 + y * d + d // 2        # 根据自己的下标得到自己格子中央的屏幕坐标
+    pygame.draw.line( scr, clr, ( xFth, yFth ), ( xScr, yScr ), 3 )
 class CLS_stack(object):
     def __init__(self):
         self.nList = []
@@ -117,7 +124,7 @@ class CLS_maze(object):
         self.img = pygame.Surface((n*scale, n*scale))
         self.read(fn)
         self.end = (15, 15)
-
+        self.log = [[0 for x in range(n)] for y in range(n)]
         for y in range(n):
             for x in range(n):
                 if self.data[y][x] == 0:
@@ -160,6 +167,7 @@ class CLS_pacman(object):
         self.moveList2 = [(0, 0)]
         self.mem = []
         self.moving = 1
+        self.testList = [(self.x,self.y)]
         return
 
     def test(self, grid, flag):
@@ -180,9 +188,12 @@ class CLS_pacman(object):
             self.finish(scr, maze, dot)
 
     def finish(self, scr, maze, dot):
-        for move in self.moveList2:
-            x0, y0, d = maze.x0, maze.y0, maze.scale
-            scr.blit(dot, (x0+move[0]*d, y0+move[1]*d))
+        cx,cy =  maze.end
+        while True:
+            scr.blit(dot,maze.x0+cx*maze.scale,maze.y0+cy*maze.scale)
+            if maze.log[cx][cy] == (0,0) or maze.log[cx,cy] == 0:
+                break
+            cx,cy = maze.log[cx][cy]
         self.moving = 0
         return
 
@@ -254,6 +265,16 @@ class CLS_pacman(object):
         self.move(grid)
         self.mem.pop(0)
     
+    def ultimateMove(self,grid,log,maze):
+        if len(self.testList) == 0:
+            return
+        self.x,self.y = self.testList[0]
+        for f in range(4):
+            if self.test(grid,f) and log[self.x+SPEED_X[f]][self.y+SPEED_Y[f]]==0:
+                self.testList.append((self.x+SPEED_X[f],self.y+SPEED_Y[f]))
+                log[self.x+SPEED_X[f]][self.y+SPEED_Y[f]] = (self.x,self.y)
+        self.testList.pop(0)
+
     def run(self,i):
         self.x,self.y,f = self.moveList2[i]
     
@@ -266,3 +287,123 @@ class CLS_pacman(object):
         x0, y0, d = maze.x0, maze.y0, maze.scale
         scr.blit(pacpic, (x0+self.x*d, y0+self.y*d))
         return
+# add the dependencies of box-pushing
+class CLS_target(object):
+    def __init__(self,pic,x,y):
+        self.pic = pic
+        self.x,self.y = x,y
+
+    def draw(self,scr,maze):
+        x = maze.x0 + self.x*maze.scale
+        y = maze.y0 + self.y*maze.scale
+        scr.blit(self.pic,(x,y))
+        return
+
+class CLS_box(CLS_target):
+    def test(self,grid,flag):
+        x = self.x+SPEED_X[flag]
+        y = self.y+SPEED_Y[flag]
+        return grid[y][x] == 1
+    def move(self,grid,flag):
+        if self.test(grid,flag):
+            grid[self.y][self.x] = 1
+            self.x,self.y  = self.x+SPEED_X[flag],self.y+SPEED_Y[flag]
+            grid[self.y][self.x] = self
+        return
+
+class CLS_man(CLS_target):
+    def test(self,grid,flag):
+        # pprint.pprint(grid)
+        x = self.x+SPEED_X[flag]
+        y = self.y+SPEED_Y[flag]
+        if type(grid[y][x]) == CLS_box:
+            if grid[y][x].test(grid,flag):
+                grid[y][x].move(grid,flag)
+                return True
+            else:
+                return False
+        else:
+            return bool(grid[y][x])
+        # print(grid)
+        # return True
+    def move(self,grid,flag):
+        if self.test(grid,flag):
+            self.x+= SPEED_X[flag]
+            self.y+= SPEED_Y[flag]
+            return True
+        else:
+            return False
+
+class CLS_framework(object):
+    def __init__(self,pic0,pic1,tgPic,boxPic,manPic,x0,y0,n,scale):
+        self.pic0,self.pic1,self.tgPic,self.boxPic,self.manPic\
+            =pic0,pic1,tgPic,boxPic,manPic
+        self.x0,self.y0,self.n,self.scale = x0,y0,n,scale
+        self.maze = CLS_maze('boxmap1.txt',pic0,pic1,self.x0,self.y0,self.n,self.scale)
+        self.currentLevel = 1
+        self.tgPosList = []
+        self.tgList= []
+        self.boxList = []
+        self.man = CLS_man(manPic,0,0)
+        return
+    
+    def read_level(self,fileName):
+        try:
+            fn = open(fileName)
+        except:
+            print(fileName,'not found!')
+            return
+        lines =  fn.readlines()
+        fn.close()
+        # print(lines[0])
+        self.maze = CLS_maze(lines[0].strip('\n'),self.pic0,self.pic1,\
+            self.x0,self.y0,self.n,self.scale)
+        self.tgPosList = eval(lines[1])
+        self.tgList = []
+        self.boxPosList = eval(lines[2])
+        for pos in self.tgPosList:
+            target = CLS_target(self.tgPic,pos[0],pos[1])
+            self.tgList.append(target)
+        self.boxList = []
+        for pos in self.boxPosList:
+            box = CLS_box(self.boxPic,pos[0],pos[1])
+            self.boxList.append(box)
+            self.maze.data[pos[1]][pos[0]] = box
+        self.man.x,self.man.y = eval(lines[3])
+        return
+    
+    def draw(self,scr):
+        scr.fill((0,0,0))
+        self.maze.draw(scr)
+        # print(self.boxList)
+        for target in self.tgList:
+            target.draw(scr,self.maze)
+        for box in self.boxList:
+            box.draw(scr,self.maze)
+        self.man.draw(scr,self.maze)
+        return
+    
+    def eventkey(self,key):
+        flag = -1
+        if key == pygame.K_RIGHT:
+            flag = 0
+        elif key == pygame.K_DOWN:
+            flag = 1
+        elif key == pygame.K_LEFT:
+            flag = 2
+        elif key == pygame.K_UP:
+            flag = 3
+        if flag != -1:
+            self.man.move(self.maze.data,flag)
+            # print('move')
+        if self.is_ok() == True:
+            print('You Win!!')
+            # go to the next level
+        # print(self.boxPosList)
+        return
+    
+    def is_ok(self):
+        st = 1
+        for f in self.tgPosList:
+            st = 1-(type(self.maze.data[f[1]][f[0]]) == int)
+        return st

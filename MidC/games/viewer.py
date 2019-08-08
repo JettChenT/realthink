@@ -4,6 +4,8 @@ fname = input('name of the file(default:demo.txt): ')
 d =  eval(input('width of the picture(default:32):'))
 if fname == '':
     fname = 'demo.txt'
+if d == None:
+    d = 32
 def RT_draw(screen,data,clrList,x0,y0,w,scale):
     for dy in range(len(data)):
         line = data[dy]
@@ -31,6 +33,6 @@ while True:
     # RT_draw(screen,aData,((0,0,0),(240,240,240)),100,200,8,10)
     # RT_draw(screen,brickData,brickColor,300,200,7,10)
     # RT_draw(screen,treeData,treeColor,500,200,8,10)
-    RT_draw(screen,block,[(225,225,225),(0,0,0)],0,0,32,10)
+    RT_draw(screen,block,[(225,225,225),(0,0,0)],0,0,d,10)
     pygame.display.update()
     pygame.event.get()
