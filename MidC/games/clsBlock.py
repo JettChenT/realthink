@@ -318,7 +318,6 @@ class CLS_man(CLS_target):
         y = self.y+SPEED_Y[flag]
         if type(grid[y][x]) == CLS_box:
             if grid[y][x].test(grid,flag):
-                grid[y][x].move(grid,flag)
                 return True
             else:
                 return False
@@ -326,10 +325,15 @@ class CLS_man(CLS_target):
             return bool(grid[y][x])
         # print(grid)
         # return True
-    def move(self,grid,flag):
+    def move(self,grid,flag,his):
         if self.test(grid,flag):
             self.x+= SPEED_X[flag]
             self.y+= SPEED_Y[flag]
+            if type(grid[self.y][self.x]) == CLS_box:
+                grid[self.y][self.x].move(grid,flag)
+                his.PUSH((1,flag,(self.x,self.y)))
+            else:
+                his.PUSH((0,flag,(self.x,self.y)))
             return True
         else:
             return False
@@ -345,6 +349,7 @@ class CLS_framework(object):
         self.tgList= []
         self.boxList = []
         self.man = CLS_man(manPic,0,0)
+        self.history = CLS_stack()
         return
     
     def read_level(self,fileName):
@@ -382,7 +387,16 @@ class CLS_framework(object):
             box.draw(scr,self.maze)
         self.man.draw(scr,self.maze)
         return
-    
+    def regret(self):
+        l = self.history.POP()
+        if l == None:
+            return
+        elif l[0] == 1:
+            self.man.x+=SPEED_X[3-l[1]]
+            self.man.y+=SPEED_Y[3-l[1]]
+        elif l[0] == 0:
+            self.man.x+=SPEED_X[3-l[1]]
+            self.man.y+=SPEED_Y[3-l[1]]
     def eventkey(self,key):
         flag = -1
         if key == pygame.K_RIGHT:
@@ -393,11 +407,15 @@ class CLS_framework(object):
             flag = 2
         elif key == pygame.K_UP:
             flag = 3
+        elif key == pygame.K_z:
+            self.regret()
         if flag != -1:
-            self.man.move(self.maze.data,flag)
+            # self.history.PUSH(self.maze.data)
+            self.man.move(self.maze.data,flag,self.history)
             # print('move')
         if self.is_ok() == True:
             print('You Win!!')
+            self.currentLevel+=1
             # go to the next level
         # print(self.boxPosList)
         return

@@ -19,7 +19,6 @@ t = time.time()
 pi = 0
 maze.draw(screen)   
 while True:
-    pacman.ultimateMove(maze.data,maze.log)
     pacman.check(maze.end,screen,maze,dot)
     pacman.draw(screen,maze,pList[pi])
     screen.blit(pic0,(100,20))
