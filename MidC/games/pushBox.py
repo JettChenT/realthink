@@ -1,4 +1,4 @@
-"""this is the main program of game:pushBox"""
+# """this is the main program of game:pushBox"""
 from clsBlock import *
 import pygame
 pygame.init()
@@ -18,6 +18,6 @@ while True:
             pygame.quit()
             sys.exit()
         if event.type  == pygame.KEYDOWN:
-            fwork.eventkey(event.key)
+            fwork.eventkey(event.key,screen)
     fwork.draw(screen)
     pygame.display.update()
