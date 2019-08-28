@@ -98,10 +98,10 @@ def RT_get_assess_value(countList):
 	elif [4,2] in countList:
 		assess,value = ASSESS_ANS,100
 	else:
-		value += countList.count([4,1])*70
-		value += countList.count([3,2])*60
-		value += countList.count([3,1])*30
-		value += countList.count([2,2])*20
+		value += countList.count([4,1])*60
+		value += countList.count([3,2])*70
+		value += countList.count([3,1])*20
+		value += countList.count([2,2])*30
 		value += countList.count([2,1])*15
 		assess = ASSESS_COUNT
 	return assess,value
