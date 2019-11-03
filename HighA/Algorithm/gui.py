@@ -1,10 +1,14 @@
 import pygame
-import random
+import random,time
 from quicksort import quick_oneNR
 SCREEN_WIDTH,SCREEN_HEIGHT = 800,680
 BG_COLOR = (199,237,233)
 BAR_COLOR_PRIMARY = (255,66,93)
 BAR_COLOR_SECONDARY = (147,224,255)
+TITLE_COLOR = (0,34,40)
+def disText(text,scr,x,y,font,color):
+    textSurface = font.render(text,False,color)
+    screen.blit(textSurface,(x,y))
 class DataBoard(object):
 	def __init__(self,lis):
 		self.lis = lis
@@ -32,6 +36,11 @@ db = DataBoard(lis)
 clock = pygame.time.Clock()
 mem = [(0,0,len(lis)-1)]
 c = 1
+fontTitle = pygame.font.Font(None,72)
+flag = 0
+db.draw(screen,-1,-1)
+pygame.display.update()
+time.sleep(1)
 while len(mem)!=0:
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
@@ -61,5 +70,6 @@ while True:
 			pygame.quit()
 	# the sorting part
 	db.draw(screen,-1,-1)
+	disText("Quick Sort Visualization",screen,10,10,fontTitle,TITLE_COLOR)
 	pygame.display.update()
 	clock.tick(5)
