@@ -61,6 +61,7 @@ def quick_sort(lis):
 		return lis
 	else:
 		nLis,keyI = quick_one(nLis)
+		# print(quick_sort(nLis[:keyI])+[nLis[keyI]]+quick_sort(nLis[keyI+1:]))
 		return quick_sort(nLis[:keyI])+[nLis[keyI]]+quick_sort(nLis[keyI+1:])
 
 def quick_oneNR(lis,pMin,keyI,pMax):
@@ -79,6 +80,7 @@ def quick_oneNR(lis,pMin,keyI,pMax):
 				keyI = pMin
 				break
 			pMin+=1
+	# print(nList)
 	return nList,keyI
 
 def quick_sortNR(lis):
@@ -104,8 +106,8 @@ def quick_sortNR(lis):
 	# print("out of while loop")
 	return lis
 # print(lis)
-nlis = quick_sortNR(lis)
-print("done")
-print(nlis)
-if nlis==sorted(lis):
-	print("YAY!")
+# nlis = quick_sortNR(lis)
+# print("done")
+# print(nlis)
+# if nlis==sorted(lis):
+# 	print("YAY!")
