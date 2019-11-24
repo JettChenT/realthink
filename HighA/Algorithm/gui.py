@@ -15,6 +15,7 @@ class DataBoard(object):
 	def update_lis(self,nLis):
 		self.lis = nLis
 	def draw(self,scr,pMin,pMax):
+		"""Draw the board"""
 		scr.fill(BG_COLOR)
 		perWidth = SCREEN_WIDTH//len(self.lis)
 		curL = 0

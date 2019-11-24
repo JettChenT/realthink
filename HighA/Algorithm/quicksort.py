@@ -105,9 +105,9 @@ def quick_sortNR(lis):
 		# print("ed")
 	# print("out of while loop")
 	return lis
-# print(lis)
-# nlis = quick_sortNR(lis)
-# print("done")
-# print(nlis)
-# if nlis==sorted(lis):
-# 	print("YAY!")
+print(lis)
+nlis = quick_sortNR(lis)
+print("done")
+print(nlis)
+if nlis==sorted(lis):
+	print("YAY!")

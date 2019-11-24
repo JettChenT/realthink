@@ -55,7 +55,6 @@ class MemBlock(object):
         screen.blit(MemAvailableSurface,(self.mtx,self.mty))
         screen.blit(MemTotalSurface,(self.max,self.may))
 
-
 class DiskBlock(object):
     def __init__(self,blockX,blockY,blockW,blockH,startX,startY,interval):
         self.block = pygame.Rect(blockX,blockY,blockH,blockW)
@@ -122,7 +121,6 @@ class sysInf(object):
         disText(self.mask.format(type="release",inf=self.release),screen,self.startX,curY,fontScore,LINE_COLOR)
         curY+=self.interval
         disText(self.mask.format(type="processor",inf=self.processor),screen,self.startX,curY,fontScore,LINE_COLOR)
-
 
 class framework(object):
     def __init__(self,blockList):
