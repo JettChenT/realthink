@@ -4,7 +4,7 @@ p = 0
 source =  '/Users/jettchen/documents'
 crtList = os.listdir(source)
 target = re.compile(
-    r'.*(\.pdf)+$',
+    r'.*(\.py)+$',
     )
 mem = []
 for pth in crtList:

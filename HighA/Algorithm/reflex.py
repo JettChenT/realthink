@@ -1,5 +1,4 @@
 nodeList = []
-source = '/Users/jettchen/anaconda3'
 class CLS_node(object):
     def __init__(self,v,i,l,r):
         self.left = l
